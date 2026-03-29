@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Friends & a Bear 🐻</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1a0a00;font-family:'Nunito',sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+  /* TITLE */
+  #title-screen{position:fixed;inset:0;background:radial-gradient(ellipse at 60% 40%,#2d1200,#0a0500);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity 1s}
+  #title-screen h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,4rem);color:#fff;text-shadow:0 0 30px #ff6600,0 0 60px #ff330066;text-align:center;padding:0 1rem;animation:tpulse 2s ease-in-out infinite}
+  #title-screen .subtitle{color:#cc8855;font-size:1.1rem;margin-top:.5rem;font-style:italic}
+  #start-btn{margin-top:2.5rem;padding:1rem 3rem;font-family:'Fredoka One',cursive;font-size:1.4rem;background:linear-gradient(135deg,#cc3300,#ff8800);border:none;border-radius:50px;color:#fff;cursor:pointer;box-shadow:0 0 20px #ff440066;transition:transform .2s,box-shadow .2s}
+  #start-btn:hover{transform:scale(1.08);box-shadow:0 0 35px #ff440099}
+  .title-chars{display:flex;gap:20px;font-size:60px;margin-bottom:1.5rem;animation:tpulse 2s ease-in-out infinite}
+  @keyframes tpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+  /* STAGE */
+  #stage{position:relative;width:min(700px,96vw);height:min(420px,60vw);border-radius:20px;overflow:hidden;box-shadow:0 0 60px #00000099;border:3px solid #ffffff22}
+
+  .scene{position:absolute;inset:0;display:none}
+  .scene.active{display:block}
+
+  /* ── SCENE 1: Forest entrance ── */
+  #scene1{background:linear-gradient(180deg,#87ceeb 0%,#98d8a8 60%,#5d9e6f 100%)}
+  .ground{position:absolute;bottom:0;left:0;right:0;height:30%;background:linear-gradient(180deg,#5d9e6f,#3d7a4f)}
+  .sun-s1{position:absolute;top:8%;right:8%;font-size:64px;animation:sunSpin 8s linear infinite}
+  @keyframes sunSpin{0%{filter:drop-shadow(0 0 10px #ffaa00)}50%{filter:drop-shadow(0 0 25px #ffaa00)}100%{filter:drop-shadow(0 0 10px #ffaa00)}}
+  .cloud-s1{position:absolute;font-size:52px;animation:cloudDrift 12s linear infinite}
+  @keyframes cloudDrift{0%{transform:translateX(-80px)}100%{transform:translateX(110vw)}}
+
+  /* ── SCENE 2: Deep forest ── */
+  #scene2{background:linear-gradient(180deg,#0a2a0a 0%,#1a4a1a 50%,#0d3010 100%)}
+
+  /* ── SCENE 3: Bear appears ── */
+  #scene3{background:linear-gradient(180deg,#1a3000 0%,#2a5010 50%,#1a3a08 100%)}
+
+  /* ── SCENE 4: Ali climbs tree ── */
+  #scene4{background:linear-gradient(180deg,#0a2a0a 0%,#1a4a1a 60%,#0d3010 100%)}
+
+  /* ── SCENE 5: Bear sniffs Zaid ── */
+  #scene5{background:linear-gradient(180deg,#1a3000 0%,#2a5010 50%,#1a3a08 100%)}
+
+  /* ── SCENE 6: Bear leaves ── */
+  #scene6{background:linear-gradient(180deg,#1a3000 0%,#2a5010 50%,#1a3a08 100%)}
+
+  /* ── SCENE 7: Reunion & lesson ── */
+  #scene7{background:linear-gradient(180deg,#87ceeb 0%,#b8e8c8 60%,#5d9e6f 100%)}
+
+  /* SHARED GROUND */
+  .forest-ground{position:absolute;bottom:0;left:0;right:0;height:28%;background:linear-gradient(180deg,#3a6a20,#2a4a15)}
+  .tree-l{position:absolute;bottom:0;font-size:clamp(60px,12vw,90px)}
+  .tree-r{position:absolute;bottom:0;font-size:clamp(60px,12vw,90px)}
+
+  /* CHARACTERS */
+  .char{position:absolute;font-size:clamp(40px,8vw,60px);transition:left 1.2s cubic-bezier(.4,0,.2,1),bottom 1.2s cubic-bezier(.4,0,.2,1),transform 1s,opacity .6s}
+  .char.bounce{animation:charBounce 0.5s ease}
+  @keyframes charBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  @keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+
+  /* SPEECH BUBBLE */
+  .speech{position:absolute;background:#fff;border-radius:16px;padding:8px 14px;font-size:clamp(.7rem,2vw,.9rem);font-weight:700;color:#333;white-space:nowrap;box-shadow:0 2px 10px #0004;opacity:0;transition:opacity .4s;pointer-events:none}
+  .speech::after{content:'';position:absolute;bottom:-10px;left:20px;border:5px solid transparent;border-top-color:#fff}
+  .speech.visible{opacity:1}
+
+  /* DIALOGUE */
+  #dialogue{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,#00000000,#000000dd);padding:14px 22px 18px;min-height:88px;z-index:20}
+  #speaker-name{font-family:'Fredoka One',cursive;font-size:clamp(.85rem,2.5vw,1rem);margin-bottom:4px}
+  #dialogue-text{font-size:clamp(.8rem,2.4vw,1rem);color:#fff;line-height:1.5;min-height:2.5em}
+  #cursor{display:inline-block;animation:blink 1s step-end infinite;color:#ffdd55}
+  @keyframes blink{50%{opacity:0}}
+
+  #scene-title{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-family:'Fredoka One',cursive;font-size:clamp(.75rem,2.2vw,1rem);color:#ffffff99;background:#ffffff11;padding:.3rem 1.1rem;border-radius:20px;border:1px solid #ffffff22;white-space:nowrap;pointer-events:none;z-index:10}
+
+  /* CONTROLS */
+  #controls{margin-top:16px;display:flex;gap:12px;align-items:center}
+  .ctrl-btn{padding:.55rem 1.5rem;font-family:'Fredoka One',cursive;font-size:1rem;border:none;border-radius:30px;cursor:pointer;transition:transform .15s}
+  .ctrl-btn:hover{transform:scale(1.08)}
+  #prev-btn{background:#334;color:#aaa}
+  #next-btn{background:linear-gradient(135deg,#cc3300,#ff8800);color:#fff;box-shadow:0 4px 14px #cc330055}
+  #progress{color:#666;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<!-- TITLE -->
+<div id="title-screen">
+  <div class="title-chars">🧒🧒🐻</div>
+  <h1>Two Friends & a Bear</h1>
+  <p class="subtitle">A story about true friendship</p>
+  <button id="start-btn" onclick="startStory()">▶ Begin Story</button>
+</div>
+
+<!-- STAGE -->
+<div id="stage">
+
+  <!-- SCENE 1: Friends walking in sunny forest -->
+  <div class="scene active" id="scene1">
+    <div class="sun-s1">☀️</div>
+    <div class="cloud-s1" style="top:12%;animation-delay:-4s">☁️</div>
+    <div class="cloud-s1" style="top:22%;animation-delay:-9s;font-size:38px">☁️</div>
+    <div class="tree-l" style="left:0%">🌳</div>
+    <div class="tree-r" style="right:0%">🌲</div>
+    <div class="ground"></div>
+    <!-- Ali -->
+    <div class="char" id="ali" style="bottom:27%;left:25%;animation:float 2.5s ease-in-out infinite" title="Ali">🧒</div>
+    <!-- Zaid -->
+    <div class="char" id="zaid" style="bottom:27%;left:42%;animation:float 2.5s 0.5s ease-in-out infinite" title="Zaid">👦</div>
+    <div id="dialogue">
+      <div id="speaker-name" style="color:#ffdd55">Narrator</div>
+      <div id="dialogue-text"><span id="typewriter"></span><span id="cursor">|</span></div>
+    </div>
+    <div id="scene-title">🌳 Scene 1 — Best Friends</div>
+  </div>
+
+  <!-- SCENE 2: Entering dark forest -->
+  <div class="scene" id="scene2">
+    <div class="forest-ground"></div>
+    <div class="tree-l" style="left:0%">🌲</div><div class="tree-l" style="left:18%">🌳</div>
+    <div class="tree-r" style="right:0%">🌲</div><div class="tree-r" style="right:18%">🌳</div>
+    <div style="position:absolute;top:10%;left:50%;transform:translateX(-50%);font-size:clamp(40px,8vw,60px);opacity:.3">🌙</div>
+    <div class="char" id="ali2" style="bottom:27%;left:22%;animation:float 2.5s ease-in-out infinite">🧒</div>
+    <div class="char" id="zaid2" style="bottom:27%;left:40%;animation:float 2.5s 0.5s ease-in-out infinite">👦</div>
+    <div id="dialogue">
+      <div id="speaker-name" style="color:#aaddff">Narrator</div>
+      <div id="dialogue-text"><span id="typewriter"></span><span id="cursor">|</span></div>
+    </div>
+    <div id="scene-title">🌑 Scene 2 — Into the Forest</div>
+  </div>
+
+  <!-- SCENE 3: Bear appears -->
+  <div class="scene" id="scene3">
+    <div class="forest-ground"></div>
+    <div class="tree-l" style="left:0%">🌲</div>
+    <div class="tree-r" style="right:0%">🌳</div>
+    <div class="char" id="ali3" style="bottom:27%;left:18%">🧒</div>
+    <div class="char" id="zaid3" style="bottom:27%;left:34%">👦</div>
+    <!-- Bear entering from right -->
+    <div class="char" id="bear" style="bottom:27%;left:75%;font-size:clamp(50px,10vw,72px);animation:shake 0.4s ease-in-out infinite">🐻</div>
+    <div id="dialogue">
+      <div id="speaker-name" style="color:#ff6644">Narrator</div>
+      <div id="dialogue-text"><span id="typewriter"></span><span id="cursor">|</span></div>
+    </div>
+    <div id="scene-title">🐻 Scene 3 — The Bear!</div>
+  </div>
+
+  <!-- SCENE 4: Ali climbs tree, Zaid falls -->
+  <div class="scene" id="scene4">
+    <div class="forest-ground"></div>
+    <div class="tree-l" style="left:5%">🌲</div>
+    <div class="tree-r" style="right:5%">🌳</div>
+    <!-- Ali up in tree -->
+    <div style="position:absolute;bottom:52%;left:8%;font-size:clamp(40px,8vw,58px);transition:all 1s">🧒</div>
+    <div style="position:absolute;bottom:52%;left:6%;font-size:clamp(30px,6vw,44px)">🌲</div>
+    <!-- Zaid lying on ground -->
+    <div style="position:absolute;bottom:26%;left:45%;font-size:clamp(38px,7vw,54px);transform:rotate(90deg)">👦</div>
+    <!-- Bear approaching -->
+    <div class="char" id="bear2" style="bottom:27%;left:68%;font-size:clamp(50px,10vw,72px)">🐻</div>
+    <div id="dialogue">
+      <div id="speaker-name" style="color:#ff4422">Ali</div>
+      <div id="dialogue-text"><span id="typewriter"></span><span id="cursor">|</span></div>
+    </div>
+    <div id="scene-title">🌲 Scene 4 — Ali Climbs Up!</div>
+  </div>
+
+  <!-- SCENE 5: Bear sniffs Zaid -->
+  <div class="scene" id="scene5">
+    <div class="forest-ground"></div>
+    <div class="tree-l" style="left:5%">🌲</div>
+    <!-- Ali still in tree, small -->
+    <div style="position:absolute;bottom:52%;left:7%;font-size:clamp(28px,5vw,40px);opacity:.8">🧒</div>
+    <!-- Zaid still on ground -->
+    <div style="position:absolute;bottom:26%;left:38%;font-size:clamp(38px,7vw,54px);transform:rotate(90deg)">👦</div>
+    <!-- Bear very close to Zaid -->
+    <div style="position:absolute;bottom:26%;left:52%;font-size:clamp(50px,10vw,72px);animation:wobble 1s ease-in-out infinite">🐻</div>
+    <!-- Bear speech bubble -->
+    <div class="speech visible" style="bottom:62%;left:48%;transform:translateX(-50%)">*sniff sniff* 🐾</div>
+    <div id="dialogue">
+      <div id="speaker-name" style="color:#88cc55">Narrator</div>
+      <div id="dialogue-text"><span id="typewriter"></span><span id="cursor">|</span></div>
+    </div>
+    <div id="scene-title">😮 Scene 5 — Bear Sniffs Zaid</div>
+  </div>
+
+  <!-- SCENE 6: Bear walks away -->
+  <div class="scene" id="scene6">
+    <div class="forest-ground"></div>
+    <div class="tree-l" style="left:5%">🌲</div>
+    <div class="tree-r" style="right:0%">🌳</div>
+    <!-- Ali climbing down -->
+    <div style="position:absolute;bottom:27%;left:10%;font-size:clamp(38px,7vw,54px);animation:float 2s ease-in-out infinite">🧒</div>
+    <!-- Zaid sitting up -->
+    <div style="position:absolute;bottom:27%;left:35%;font-size:clamp(38px,7vw,54px);animation:float 2s .4s ease-in-out infinite">👦</div>
+    <!-- Bear walking away -->
+    <div class="char" id="bear3" style="bottom:27%;left:80%;font-size:clamp(46px,9vw,65px);transform:scaleX(-1);transition:left 3s ease">🐻</div>
+    <div id="dialogue">
+      <div id="speaker-name" style="color:#88cc55">Narrator</div>
+      <div id="dialogue-text"><span id="typewriter"></span><span id="cursor">|</span></div>
+    </div>
+    <div id="scene-title">🐾 Scene 6 — Bear Walks Away</div>
+  </div>
+
+  <!-- SCENE 7: Friends talk, lesson learned -->
+  <div class="scene" id="scene7">
+    <div class="ground"></div>
+    <div style="position:absolute;top:8%;right:8%;font-size:60px;animation:sunSpin 8s linear infinite">☀️</div>
+    <div class="tree-l" style="left:0%">🌳</div>
+    <div class="tree-r" style="right:0%">🌲</div>
+    <!-- Ali -->
+    <div style="position:absolute;bottom:28%;left:25%;font-size:clamp(40px,8vw,58px);animation:float 2.5s ease-in-out infinite">🧒</div>
+    <!-- Zaid -->
+    <div style="position:absolute;bottom:28%;left:48%;font-size:clamp(40px,8vw,58px);animation:float 2.5s .5s ease-in-out infinite">👦</div>
+    <!-- Speech bubbles -->
+    <div class="speech" id="ali-bubble" style="bottom:66%;left:18%">What did the bear whisper? 🤔</div>
+    <div class="speech" id="zaid-bubble" style="bottom:66%;left:44%">A true friend never leaves! ❤️</div>
+    <div id="dialogue">
+      <div id="speaker-name" style="color:#ffdd55">Zaid</div>
+      <div id="dialogue-text"><span id="typewriter"></span><span id="cursor">|</span></div>
+    </div>
+    <div id="scene-title">💛 Scene 7 — The Lesson</div>
+  </div>
+
+</div>
+
+<!-- CONTROLS -->
+<div id="controls">
+  <button class="ctrl-btn" id="prev-btn" onclick="changeScene(-1)">◀ Prev</button>
+  <span id="progress">Scene 1 / 7</span>
+  <button class="ctrl-btn" id="next-btn" onclick="changeScene(1)">Next ▶</button>
+</div>
+
+<script>
+const story = [
+  {
+    sceneIdx: 0,
+    speaker: "Narrator",
+    speakerColor: "#ffdd55",
+    lines: [
+      "Ali and Zaid were the best of friends. They did everything together — laughed, played, and explored. 🌳",
+      "One warm afternoon, they decided to take a shortcut through the great forest.",
+      "\"Whatever happens,\" said Ali, \"we'll face it together!\" Zaid smiled and nodded. 🤝"
+    ]
+  },
+  {
+    sceneIdx: 1,
+    speaker: "Narrator",
+    speakerColor: "#aaddff",
+    lines: [
+      "The forest grew darker and quieter with every step. The trees towered like giants above them. 🌑",
+      "Strange sounds echoed between the branches. Both friends walked a little closer together.",
+      "Then suddenly — a loud CRASH came from behind the bushes! 💥"
+    ]
+  },
+  {
+    sceneIdx: 2,
+    speaker: "Narrator",
+    speakerColor: "#ff6644",
+    lines: [
+      "A huge brown bear burst out from the trees — growling and stomping toward them! 🐻",
+      "Both boys froze with fear. Their hearts hammered in their chests.",
+      "\"RUN!\" screamed Ali. But Zaid's legs wouldn't move — he tripped and fell to the ground! 😱"
+    ]
+  },
+  {
+    sceneIdx: 3,
+    speaker: "Ali",
+    speakerColor: "#ff4422",
+    lines: [
+      "Ali didn't look back. He sprinted to the nearest tree and climbed as fast as he could! 🌲",
+      "From the high branch he looked down... Zaid was still on the ground, trembling.",
+      "\"Play dead! Bears don't eat dead animals!\" Ali whispered from above, hoping Zaid would hear. 🤫"
+    ]
+  },
+  {
+    sceneIdx: 4,
+    speaker: "Narrator",
+    speakerColor: "#88cc55",
+    lines: [
+      "Zaid remembered what he'd once heard: bears avoid the dead. He closed his eyes and held his breath.",
+      "The bear walked closer... and closer... and sniffed all around Zaid's face and ears.",
+      "Zaid didn't blink. He didn't breathe. He lay perfectly still like a stone. 🪨"
+    ]
+  },
+  {
+    sceneIdx: 5,
+    speaker: "Narrator",
+    speakerColor: "#88cc55",
+    lines: [
+      "After what felt like forever, the bear huffed — then turned and walked back into the forest. 🐾",
+      "Ali slid down the tree quickly. \"Zaid! Are you alright?\" he asked, rushing over.",
+      "Zaid slowly sat up, still shaking, but safe. He let out a long breath. 😮‍💨"
+    ]
+  },
+  {
+    sceneIdx: 6,
+    speaker: "Zaid",
+    speakerColor: "#ffdd55",
+    lines: [
+      "\"Ali... I saw you climb the tree. You left me.\" Zaid looked at his friend quietly.",
+      "Ali looked down, ashamed. \"I... I was scared. I'm sorry, Zaid.\"",
+      "Zaid shook his head slowly. \"The bear whispered something in my ear, Ali.\" He paused.\n\n\"He said: never trust a friend who disappears when danger arrives.\"\n\n— The End 🌟"
+    ]
+  }
+];
+
+let currentStory = 0;
+let currentLine = 0;
+let typing = false;
+let typeTimeout = null;
+
+function getActiveElements() {
+  const scene = document.querySelectorAll('.scene')[story[currentStory].sceneIdx];
+  return {
+    tw: scene.querySelector('#typewriter'),
+    speaker: scene.querySelector('#speaker-name'),
+  };
+}
+
+function typeDialogue() {
+  if (typeTimeout) clearTimeout(typeTimeout);
+  const s = story[currentStory];
+  const line = s.lines[currentLine];
+  const { tw, speaker } = getActiveElements();
+  if (!tw) return;
+
+  speaker.textContent = s.speaker;
+  speaker.style.color = s.speakerColor;
+  tw.textContent = '';
+  typing = true;
+  let i = 0;
+
+  function type() {
+    if (i < line.length) {
+      tw.textContent += line[i++];
+      typeTimeout = setTimeout(type, 26);
+    } else {
+      typing = false;
+      // Special triggers per scene/line
+      triggerAnimations();
+    }
+  }
+  type();
+}
+
+function triggerAnimations() {
+  // Scene 6: bear walks away
+  if (currentStory === 5 && currentLine === 0) {
+    const bear = document.getElementById('bear3');
+    if (bear) setTimeout(() => { bear.style.left = '110%'; }, 500);
+  }
+  // Scene 7: show speech bubbles
+  if (currentStory === 6 && currentLine === 0) {
+    const b = document.getElementById('ali-bubble');
+    if (b) b.classList.add('visible');
+  }
+  if (currentStory === 6 && currentLine === 1) {
+    const b = document.getElementById('zaid-bubble');
+    if (b) b.classList.add('visible');
+  }
+}
+
+function showSceneByStory(idx) {
+  const sceneIdx = story[idx].sceneIdx;
+  document.querySelectorAll('.scene').forEach((s, i) => s.classList.toggle('active', i === sceneIdx));
+  document.getElementById('progress').textContent = `Scene ${sceneIdx + 1} / 7`;
+  document.getElementById('prev-btn').style.opacity = idx === 0 ? '0.3' : '1';
+  document.getElementById('next-btn').textContent = idx === story.length - 1 ? '🔁 Replay' : 'Next ▶';
+}
+
+function changeScene(dir) {
+  if (dir === 1) {
+    if (typing) {
+      clearTimeout(typeTimeout);
+      typing = false;
+      const s = story[currentStory];
+      const { tw, speaker } = getActiveElements();
+      tw.textContent = s.lines[currentLine];
+      speaker.textContent = s.speaker;
+      speaker.style.color = s.speakerColor;
+      triggerAnimations();
+      return;
+    }
+    currentLine++;
+    if (currentLine < story[currentStory].lines.length) {
+      typeDialogue();
+    } else {
+      currentLine = 0;
+      currentStory++;
+      if (currentStory >= story.length) { currentStory = 0; currentLine = 0; }
+      showSceneByStory(currentStory);
+      setTimeout(typeDialogue, 350);
+    }
+  } else {
+    if (typing) { clearTimeout(typeTimeout); typing = false; }
+    currentLine = 0;
+    if (currentStory > 0) currentStory--;
+    showSceneByStory(currentStory);
+    setTimeout(typeDialogue, 300);
+  }
+}
+
+function startStory() {
+  document.getElementById('title-screen').style.opacity = '0';
+  setTimeout(() => document.getElementById('title-screen').style.display = 'none', 1000);
+  typeDialogue();
+}
+
+showSceneByStory(0);
+</script>
+</body>
+</html>
